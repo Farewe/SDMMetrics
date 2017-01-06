@@ -349,28 +349,25 @@ ggplot(ggr, aes(x = sample.absences, y = value)) +
 dev.off()
 
 # Simulation 7 : comparing metrics for a good and a bad model, with different sample sizes
-presences <- rep(100, 3)
-absences <- c(100, 1000, 10000)
+presences <- rep(500, 3)
+absences <- c(500, 1000, 10000)
 true.prev <- c(.01, .10, .5)
 area <- 100000
 true.presences <- true.prev * area
 true.absences <- area - (true.prev * area)
-models <- list(M1 = list(TP = .85,
-                         FP = .15,
-                         FN = .15),
+models <- list(M1 = list(TP = .60, 
+                         OPR = .40,
+                         UP = .40), # HAS TO BE 1 - TP
                M2 = list(TP = .60,
-                         FP = .40,
-                         FN = .40),
-               M3 = list(TP = .80,
-                         FP = 0,
-                         FN = .20),
-               M4 = list(TP = .80,
-                         FP = .20,
-                         FN = 0))
+                         OPR = 0,
+                         UP = .40),
+               M3 = list(TP = 1,
+                         OPR = .40,
+                         UP = 0))
 
 all.res <- NULL
 
-sim <- 10
+sim <- 100
 
 res <- data.frame(matrix(nr = 1, nc = 6, dimnames = list(1, c("model", "sp.prev", "TP", "FP", "FN", "TN"))))
 for(i in 1:sim)
@@ -383,39 +380,47 @@ for(i in 1:sim)
       {
         for(sp.prev in 1:length(true.prev))
         {
-          pred.pres <- c(rep(1, models[[md]]$TP * true.presences[sp.prev]),
-                         rep(0, true.presences[sp.prev] - models[[md]]$TP * true.presences[sp.prev]))
-          pred.abs <- c(rep(1, length(pred.pres) * models[[md]]$FP),
-                        rep(0, true.absences[sp.prev] - length(pred.pres) * models[[md]]$FP))
-          obs.pres <- sample(pred.pres, nbP)
-          obs.abs <- sample(pred.abs, nbA)
+          # pred.obs.pres : Predictions for the species distribution range only
+          pred.obs.pres <- c(rep(1, models[[md]]$TP * true.presences[sp.prev]),
+                             rep(0, true.presences[sp.prev] - models[[md]]$TP * true.presences[sp.prev]))
+          # pred.obs.abs : Predictions for areas  where the species is absent 
+          pred.obs.abs <- c(rep(1, models[[md]]$OPR * models[[md]]$TP * true.presences[sp.prev] / (1 - models[[md]]$OPR)),
+                            rep(0, true.absences[sp.prev] - 
+                                  models[[md]]$OPR * models[[md]]$TP * true.presences[sp.prev] / (1 - models[[md]]$OPR)))
+          sample.pres <- sample(pred.obs.pres, nbP)
+          sample.abs <- sample(pred.obs.abs, nbA)
           
           res$model <- md
           res$sp.prev <- true.prev[sp.prev]
           
-          res$TP <- length(which(obs.pres == 1))
-          res$FN <- length(which(obs.pres == 0))
-          res$FP <- length(which(obs.abs == 1))
-          res$TN <- length(which(obs.abs == 0))
+          res$TP <- length(which(sample.pres == 1))
+          res$FN <- length(which(sample.pres == 0))
+          res$FP <- length(which(sample.abs == 1))
+          res$TN <- length(which(sample.abs == 0))
           all.res <- rbind(all.res, 
                            res)
         }      
       }
     }
   }
-  
 }
 
 results <- metrics(all.res, total = apply(all.res[, 3:6], 1, sum))
 results$model <- all.res$model
 results$sp.prev <- all.res$sp.prev
-results$c.val <- results$sample.presences / ((results$sample.absences + results$sample.presences) * results$sp.prev)
-results$Fcpb <- 2 * results$TP / (results$TP + results$FN + results$FP * results$c.val)
+results$c.val <- results$sample.presences * (1 - results$sp.prev) / (results$sample.absences * results$sp.prev)
+results$OPRp <- results$FP * results$c.val / (results$TP + results$FP * results$c.val)
+results$Jacp <- results$TP / (results$TP + results$FN + results$FP * results$c.val)
 # results <- results[which(results$prevalence <= 0.5), ]
 
+# Number of FP in the sample for each prevalence
+mean(results$OPRp[which(results$sample.absences == 500 & results$model == 1 & results$sp.prev == 0.01)])
+mean(results$OPRp[which(results$sample.absences == 500 & results$model == 1 & results$sp.prev == 0.1)])
+mean(results$OPRp[which(results$sample.absences == 500 & results$model == 1 & results$sp.prev == 0.5)])
+
 ggr <- melt(results, id.vars = c("prevalence", "pred.prevalence", "TP", "FP", "FN", "TN", "OPR", 
-                                 "UTP", "OPpc", "sample.presences", "sample.absences", "model", "sp.prev"), 
-            measure.vars = c("Jaccard", "Fcpb", "TSS"))
+                                 "UTP", "OPpc", "sample.presences", "sample.absences", "model", "sp.prev", "OPRp"), 
+            measure.vars = c("TSS", "Jaccard", "Jacp"))
 
 ggr$prevalence <- round(ggr$prevalence, 2)
 ggr$prev <- as.factor(ggr$prevalence)
@@ -425,28 +430,23 @@ ggr$UTP <- ggr$UTP * 100
 ggr$sample.size <- ggr$sample.absences + ggr$sample.presences
 ggr$model <- as.factor(ggr$model)
 ggr$sample.absences <- as.factor(ggr$sample.absences)
-levels(ggr$model) <- c("OPR = UP = 0.15", "OPR = UP = 0.40", "OPR = 0, UP = 0.20", "OPR = 0.20, UP = 0")
+levels(ggr$model) <- c("OPR = UP = 0.40", "OPR = 0, UP = 0.40", "OPR = 0.40, UP = 0")
+levels(ggr$sample.absences) <- c("500 absence points\nSample\nprevalence = 0.50", 
+                                 "500 absence points\nSample\nprevalence = 0.33", 
+                                 "500 absence points\nSample\nprevalence = 0.05")
+levels(ggr$variable) <- c("a. True Skill Statistic", "b. Jaccard", "c. Prevalence calibrated\nJaccard")
 
-levels(ggr$variable) <- c("a. Jaccard", "b. Fcpb", "c. True Skill Statistic")
 
 
 # png("./outputs/Figure S2.3.png", h = 800, w = 600)
 ggplot(ggr, aes(x = sp.prev, y = value, col = model)) + 
-  geom_point(aes(shape = sample.absences)) + 
+  geom_point() + 
   stat_smooth(se = T) +
-  facet_wrap(~variable, nrow = 1) +
-  # xlab("Number of absences\n(Number of presences = 100)") +
+  facet_grid(sample.absences~variable) +
+  xlab("Species prevalence") +
   theme_bw() +
-  # guides(col=guide_legend(title = "Prevalence")) + ylab("Metric value") + 
-  theme(legend.position = "top") #+
+  guides(col=guide_legend(title = "Models")) + ylab("Metric value") + 
+  theme(legend.position = "top") + 
+  geom_hline(yintercept = c(6/14, 6/10))#+
 # coord_fixed(ratio = 100)
 # dev.off()
-
-# Clearly, the results indicate that none of the metrics can provide
-# a value independent of prevalence.
-# The problem is most likely linked to the sampling of absences which
-# is dependent on species prevalence. For TSS, low prevalences mean
-# high numbers of TN and thus high values of sensitivity --> high TSS.
-# For Jaccard, low prevalences mean low likelihood of sampling 
-# FP, and thus higher values. Conversely, high prevalences results
-# in higher likelihood of sampling FPs, and thus lower values. 
