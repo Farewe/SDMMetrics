@@ -2,7 +2,7 @@ library(reshape2)
 library(ggplot2)
 source("./scripts/functions/basic_metrics.R")
 
-true.prev <- seq(.01, .5, by = .01)
+true.prev <- seq(.01, .6, by = .01)
 area <- 100000
 true.presences <- true.prev * area
 true.absences <- area - (true.prev * area)
@@ -88,9 +88,9 @@ levels(ggr$variable) <- c("a. True Skill Statistic", "b. Jaccard")
 
 
 
-png("./outputs/Figure sample = species prevalence.png", h = 500, w = 500)
+png("./outputs/Figure 2 sample = species prevalence.png", h = 500, w = 500)
 ggplot(ggr, aes(x = sp.prev, y = value, col = model)) +
-  geom_point(alpha = 1/5) +
+  geom_point(alpha = 1/10) +
   stat_smooth() +
   facet_grid(~variable) +
   xlab("Species prevalence") +

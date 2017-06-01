@@ -3,10 +3,9 @@ library(ggplot2)
 source("./scripts/functions/basic_metrics.R")
 
 
-# Simulation 8 : test avec les PAs
 presences <- rep(500, 3)
 absences <- c(500, 1000, 10000)
-true.prev <- c(.01, .10, .5)
+true.prev <- seq(.01, .6, by = .01)
 area <- 100000
 true.presences <- true.prev * area
 true.absences <- area - (true.prev * area)
@@ -86,7 +85,6 @@ results$Fcpb <- results$TP / (results$TP + results$FN + results$FP * results$c.v
 results$FFP <- (1 - results$UTP) * (results$sp.prev * area - results$sample.presences)
 results$FPprim <- (results$FP / results$sample.absences) * (area - results$sample.presences) - results$FFP
 results$FPprim <- results$sample.absences * (results$FPprim / (area * (1 - results$sp.prev)))
-# results$FPprim <- sapply(results$FPprim, FUN = max, 0)
 results$OPRppa <- results$FPprim * results$x.val / (results$TP + results$FPprim * results$x.val)
 results$Jacppa <- results$TP / (results$TP + results$FN + results$FPprim * results$x.val)
 
@@ -103,19 +101,21 @@ ggr$UTP <- ggr$UTP * 100
 ggr$sample.size <- ggr$sample.absences + ggr$sample.presences
 ggr$model <- as.factor(ggr$model)
 ggr$sample.absences <- as.factor(ggr$sample.absences)
-levels(ggr$model) <- c("OPR = UP = 0.40", "OPR = 0, UP = 0.40", "OPR = 0.40, UP = 0")
-levels(ggr$sample.absences) <- c("500 absence points\nSample\nprevalence = 0.50", 
-                                 "1000 absence points\nSample\nprevalence = 0.33", 
-                                 "10 000 absence points\nSample\nprevalence = 0.05")
+levels(ggr$model) <- c("40% overprediction & 40% underprediction", 
+                       "40% underprediction", 
+                       "40% overprediction")
+levels(ggr$sample.absences) <- c("500 pseudoabsences\nSample\nprevalence = 0.50", 
+                                 "1000 pseudoabsences\nSample\nprevalence = 0.33", 
+                                 "10 000 pseudoabsences\nSample\nprevalence = 0.05")
 levels(ggr$variable) <- c("a. True Skill Statistic", "b. Jaccard", "c. Fcpb",
                           "d. Prevalence calibrated\nJaccard",
                           "e. Prevalence calibrated\nPseudo-absence Jaccard")
 
 
 
-png("./outputs/Figure pseudo-absences.png", h = 800, w = 1000)
+png("./outputs/Figure 4 presence-pseudoabsence differentprev.png", h = 800, w = 1000)
 ggplot(ggr, aes(x = sp.prev, y = value, col = model)) + 
-  geom_point() + ylim(0, 1) +
+  geom_point(alpha = 1/10) + ylim(0, 1) +
   stat_smooth(se = T) +
   facet_grid(sample.absences~variable) +
   xlab("Species prevalence") +
@@ -124,3 +124,4 @@ ggplot(ggr, aes(x = sp.prev, y = value, col = model)) +
   theme(legend.position = "top") + 
   geom_hline(yintercept = c(6/14, 6/10), linetype = 2)
 dev.off()
+

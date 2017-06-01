@@ -5,7 +5,7 @@ source("./scripts/functions/basic_metrics.R")
 
 presences <- rep(500, 3)
 absences <- c(500, 1000, 10000)
-true.prev <- c(.01, .10, .5)
+true.prev <- seq(.01, .6, by = .01)
 area <- 100000
 true.presences <- true.prev * area
 true.absences <- area - (true.prev * area)
@@ -21,7 +21,7 @@ models <- list(M1 = list(TP = .60,
 
 all.res <- NULL
 
-sim <- 100
+sim <- 10
 
 res <- data.frame(matrix(nr = 1, nc = 6, dimnames = list(1, c("model", "sp.prev", "TP", "FP", "FN", "TN"))))
 for(i in 1:sim)
@@ -65,21 +65,11 @@ results$sp.prev <- all.res$sp.prev
 results$x.val <- results$sample.presences * (1 - results$sp.prev) / (results$sample.absences * results$sp.prev)
 results$OPRp <- results$FP * results$x.val / (results$TP + results$FP * results$x.val)
 results$Jacp <- results$TP / (results$TP + results$FN + results$FP * results$x.val)
-# results <- results[which(results$prevalence <= 0.5), ]
 
-# Fcpb by Li & Guo
-results$c.val <- results$sample.presences / (results$sp.prev * results$sample.absences)
-results$Fcpb <- results$TP / (results$TP + results$FN + results$FP * results$c.val)
-
-
-# Number of FP in the sample for each prevalence
-mean(results$OPRp[which(results$sample.absences == 500 & results$model == 1 & results$sp.prev == 0.01)])
-mean(results$OPRp[which(results$sample.absences == 500 & results$model == 1 & results$sp.prev == 0.1)])
-mean(results$OPRp[which(results$sample.absences == 500 & results$model == 1 & results$sp.prev == 0.5)])
 
 ggr <- melt(results, id.vars = c("prevalence", "pred.prevalence", "TP", "FP", "FN", "TN", "OPR", 
                                  "UTP", "OPpc", "sample.presences", "sample.absences", "model", "sp.prev", "OPRp"), 
-            measure.vars = c("TSS", "Jaccard", "Fcpb","Jacp"))
+            measure.vars = c("TSS", "Jaccard", "Jacp"))
 
 ggr$prevalence <- round(ggr$prevalence, 2)
 ggr$prev <- as.factor(ggr$prevalence)
@@ -89,17 +79,19 @@ ggr$UTP <- ggr$UTP * 100
 ggr$sample.size <- ggr$sample.absences + ggr$sample.presences
 ggr$model <- as.factor(ggr$model)
 ggr$sample.absences <- as.factor(ggr$sample.absences)
-levels(ggr$model) <- c("OPR = UP = 0.40", "OPR = 0, UP = 0.40", "OPR = 0.40, UP = 0")
 levels(ggr$sample.absences) <- c("500 absence points\nSample\nprevalence = 0.50", 
                                  "1000 absence points\nSample\nprevalence = 0.33", 
                                  "10 000 absence points\nSample\nprevalence = 0.05")
-levels(ggr$variable) <- c("a. True Skill Statistic", "b. Jaccard", "c. Fcpb", "d. Prevalence calibrated\nJaccard")
+levels(ggr$variable) <- c("a. True Skill Statistic", "b. Jaccard", "c. Prevalence calibrated\nJaccard")
+
+levels(ggr$model) <- c("40% overprediction & 40% underprediction", 
+                       "40% underprediction", 
+                       "40% overprediction")
 
 
-
-png("./outputs/Figure presence-absence.png", h = 800, w = 960)
+png("./outputs/Figure 3 presence-absence differentprev.png", h = 800, w = 960)
 ggplot(ggr, aes(x = sp.prev, y = value, col = model)) +
-  geom_point() +
+  geom_point(alpha = 1/10) +
   stat_smooth(se = T) +
   facet_grid(sample.absences~variable) +
   xlab("Species prevalence") +
