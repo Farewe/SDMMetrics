@@ -79,26 +79,28 @@ ggr$UTP <- ggr$UTP * 100
 ggr$sample.size <- ggr$sample.absences + ggr$sample.presences
 ggr$model <- as.factor(ggr$model)
 ggr$sample.absences <- as.factor(ggr$sample.absences)
-levels(ggr$sample.absences) <- c("500 absence points\nSample\nprevalence = 0.50", 
-                                 "1000 absence points\nSample\nprevalence = 0.33", 
-                                 "10 000 absence points\nSample\nprevalence = 0.05")
+levels(ggr$sample.absences) <- c("Sample\nprevalence = 0.50", 
+                                 "Sample\nprevalence = 0.33", 
+                                 "Sample\nprevalence = 0.05")
 levels(ggr$variable) <- c("a. True Skill Statistic", "b. Jaccard", "c. Prevalence calibrated\nJaccard")
 
-levels(ggr$model) <- c("40% overprediction & 40% underprediction", 
-                       "40% underprediction", 
-                       "40% overprediction")
+levels(ggr$model) <- c("40% overprediction &\n40% underprediction", 
+                       "40% underprediction\n", 
+                       "40% overprediction\n")
 
 
 png("./outputs/Figure 3 presence-absence differentprev.png", h = 800, w = 960)
 ggplot(ggr, aes(x = sp.prev, y = value, col = model)) +
   geom_point(alpha = 1/10) +
   stat_smooth(se = T) +
-  facet_grid(sample.absences~variable) +
+  facet_grid(sample.absences~variable, switch = 'y') +
   xlab("Species prevalence") +
-  theme_bw() +
-  guides(col=guide_legend(title = "Models")) + ylab("Metric value") +
-  theme(legend.position = "top") +
-  geom_hline(yintercept = c(6/14, 6/10), linetype = 2)
+  theme_bw(base_size = 20) +
+  guides(col=guide_legend(title = "Case studies\n")) + ylab("Metric value") +
+  theme(legend.position = "right",
+        legend.key = element_rect(size = 5, color = "white"),
+        legend.key.size = unit(1.5, 'lines')) # +
+  # geom_hline(yintercept = c(6/14, 6/10), linetype = 2)
 dev.off()
 
 

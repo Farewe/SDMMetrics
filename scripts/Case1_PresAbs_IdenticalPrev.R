@@ -94,8 +94,8 @@ ggplot(ggr, aes(x = sp.prev, y = value, col = model)) +
   stat_smooth() +
   facet_grid(~variable) +
   xlab("Species prevalence") +
-  theme_bw() +
-  guides(col=guide_legend(title = "Models",
+  theme_bw(base_size = 18) +
+  guides(col=guide_legend(title = "Case studies",
                           nrow = 3)) + ylab("Metric value") +
   theme(legend.position = "top") +
   # geom_hline(yintercept = c(6/14, 6/10), linetype = 2) +
