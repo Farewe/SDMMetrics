@@ -98,7 +98,6 @@ ggplot(ggr, aes(x = sp.prev, y = value, col = model)) +
   guides(col=guide_legend(title = "Models",
                           nrow = 3)) + ylab("Metric value") +
   theme(legend.position = "top") +
-  # geom_hline(yintercept = c(6/14, 6/10), linetype = 2) +
   coord_equal()
 dev.off()
 

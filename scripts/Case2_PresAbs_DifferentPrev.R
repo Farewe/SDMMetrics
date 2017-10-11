@@ -97,8 +97,7 @@ ggplot(ggr, aes(x = sp.prev, y = value, col = model)) +
   xlab("Species prevalence") +
   theme_bw() +
   guides(col=guide_legend(title = "Models")) + ylab("Metric value") +
-  theme(legend.position = "top") +
-  geom_hline(yintercept = c(6/14, 6/10), linetype = 2)
+  theme(legend.position = "top")
 dev.off()
 
 
