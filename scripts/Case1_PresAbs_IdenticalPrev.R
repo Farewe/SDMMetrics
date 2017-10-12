@@ -61,6 +61,7 @@ results$sp.prev <- all.res$sp.prev
 results$x.val <- results$sample.presences * (1 - results$sp.prev) / (results$sample.absences * results$sp.prev)
 results$OPRp <- results$FP * results$x.val / (results$TP + results$FP * results$x.val)
 results$Jacp <- results$TP / (results$TP + results$FN + results$FP * results$x.val)
+results$Sorp <- 2 * results$TP / (2 * results$TP + results$FN + results$FP * results$x.val)
 
 # Fcpb by Li & Guo
 results$c.val <- results$sample.presences / (results$sp.prev * results$sample.absences)
@@ -70,7 +71,7 @@ results$Fcpb <- results$TP / (results$TP + results$FN + results$FP * results$c.v
 
 ggr <- melt(results, id.vars = c("prevalence", "pred.prevalence", "TP", "FP", "FN", "TN", "OPR", 
                                  "UTP", "OPpc", "sample.presences", "sample.absences", "model", "sp.prev", "OPRp"), 
-            measure.vars = c("TSS", "Jaccard"))
+            measure.vars = c("TSS", "Sorensen"))
 
 ggr$prevalence <- round(ggr$prevalence, 2)
 ggr$prev <- as.factor(ggr$prevalence)
@@ -84,7 +85,7 @@ levels(ggr$model) <- c("40% overprediction & 40% underprediction",
                        "40% underprediction", 
                        "40% overprediction")
 
-levels(ggr$variable) <- c("a. True Skill Statistic", "b. Jaccard")
+levels(ggr$variable) <- c("a. True Skill Statistic", "b. Sorensen")
 
 
 

@@ -105,7 +105,8 @@ mtext(titles[i], adj=.5, side=1, line=-1.5, cex=1.6, font=1)
 mtext(paste('TSS = ', format(TSS[i], nsmall = 2),
             '\nSensitivity = ', format(Sens[i], nsmall = 2),
             '\nSpecificity = ',   format(Spe[i], nsmall = 2), sep = ""), adj=0.05, side=3, line=-7, cex=1.6)
-mtext(paste('\nJaccard = ',  format(Jaccard[i], nsmall = 2),
+mtext(paste(#'\nJaccard = ',  format(Jaccard[i], nsmall = 2),
+            '\nSorensen = ',  format(Sorensen[i], nsmall = 2),
             '\nUPR = ', format(UTP[i], nsmall = 2), 
             '\nOPR = ', format(OPR[i], nsmall = 2), sep=""), adj=0.95, side=3, line=-7, cex=1.6)
 # mtext(paste('UTP = ', format(UTP[i], nsmall = 2), 

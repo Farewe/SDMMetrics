@@ -65,11 +65,12 @@ results$sp.prev <- all.res$sp.prev
 results$x.val <- results$sample.presences * (1 - results$sp.prev) / (results$sample.absences * results$sp.prev)
 results$OPRp <- results$FP * results$x.val / (results$TP + results$FP * results$x.val)
 results$Jacp <- results$TP / (results$TP + results$FN + results$FP * results$x.val)
+results$Sorp <- 2 * results$TP / (2 * results$TP + results$FN + results$FP * results$x.val)
 
 
 ggr <- melt(results, id.vars = c("prevalence", "pred.prevalence", "TP", "FP", "FN", "TN", "OPR", 
                                  "UTP", "OPpc", "sample.presences", "sample.absences", "model", "sp.prev", "OPRp"), 
-            measure.vars = c("TSS", "Jaccard", "Jacp"))
+            measure.vars = c("TSS", "Sorensen", "Sorp"))
 
 ggr$prevalence <- round(ggr$prevalence, 2)
 ggr$prev <- as.factor(ggr$prevalence)
@@ -82,11 +83,11 @@ ggr$sample.absences <- as.factor(ggr$sample.absences)
 levels(ggr$sample.absences) <- c("Sample\nprevalence = 0.50", 
                                  "Sample\nprevalence = 0.33", 
                                  "Sample\nprevalence = 0.05")
-levels(ggr$variable) <- c("a. True Skill Statistic", "b. Jaccard", "c. Prevalence calibrated\nJaccard")
+levels(ggr$variable) <- c("a. True Skill Statistic", "b. Sorensen", "c. Prevalence calibrated\nSorensen")
 
 levels(ggr$model) <- c("40% overprediction &\n40% underprediction", 
-                       "40% underprediction\n", 
-                       "40% overprediction\n")
+                       "40% underprediction", 
+                       "40% overprediction")
 
 
 png("./outputs/Figure 3 presence-absence differentprev.png", h = 800, w = 960)
@@ -98,8 +99,9 @@ ggplot(ggr, aes(x = sp.prev, y = value, col = model)) +
   theme_bw(base_size = 20) +
   guides(col=guide_legend(title = "Case studies\n")) + ylab("Metric value") +
   theme(legend.position = "right",
-        legend.key = element_rect(size = 5, color = "white"),
-        legend.key.size = unit(1.5, 'lines')) # +
+        legend.key = element_rect(color = "white"),
+        legend.key.height	= unit(3, 'lines'),
+        legend.key.width = unit(2, 'lines')) # +
   # geom_hline(yintercept = c(6/14, 6/10), linetype = 2)
 dev.off()
 

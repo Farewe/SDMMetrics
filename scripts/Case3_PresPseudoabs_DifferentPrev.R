@@ -75,6 +75,7 @@ results$sp.prev <- all.res$sp.prev
 results$x.val <- results$sample.presences * (1 - results$sp.prev) / (results$sample.absences * results$sp.prev)
 results$OPRp <- results$FP * results$x.val / (results$TP + results$FP * results$x.val)
 results$Jacp <- results$TP / (results$TP + results$FN + results$FP * results$x.val)
+results$Sorp <- 2 * results$TP / (2 * results$TP + results$FN + results$FP * results$x.val)
 
 # Fcpb by Li & Guo
 results$c.val <- results$sample.presences / (results$sp.prev * results$sample.absences)
@@ -87,11 +88,12 @@ results$FPprim <- (results$FP / results$sample.absences) * (area - results$sampl
 results$FPprim <- results$sample.absences * (results$FPprim / (area * (1 - results$sp.prev)))
 results$OPRppa <- results$FPprim * results$x.val / (results$TP + results$FPprim * results$x.val)
 results$Jacppa <- results$TP / (results$TP + results$FN + results$FPprim * results$x.val)
+results$Sorppa <- 2 * results$TP / (2 * results$TP + results$FN + results$FPprim * results$x.val)
 
 
 ggr <- melt(results, id.vars = c("prevalence", "pred.prevalence", "TP", "FP", "FN", "TN", "OPR", 
                                  "UTP", "OPpc", "sample.presences", "sample.absences", "model", "sp.prev", "OPRp"), 
-            measure.vars = c("TSS", "Jaccard", "Jacp", "Fcpb", "Jacppa"))
+            measure.vars = c("TSS", "Sorensen", "Sorp", "Fcpb", "Sorppa"))
 
 ggr$prevalence <- round(ggr$prevalence, 2)
 ggr$prev <- as.factor(ggr$prevalence)
@@ -107,10 +109,10 @@ levels(ggr$model) <- c("40% overprediction &\n40% underprediction",
 levels(ggr$sample.absences) <- c("Sample\nprevalence = 0.50", 
                                  "Sample\nprevalence = 0.33", 
                                  "Sample\nprevalence = 0.05")
-levels(ggr$variable) <- c("a. True Skill Statistic", "b. Jaccard", 
-                          "c. Prevalence calibrated\nJaccard",
+levels(ggr$variable) <- c("a. True Skill Statistic", "b. Sorensen", 
+                          "c. Prevalence calibrated\nSorensen",
                           "d. Fcpb",
-                          "e. Prevalence calibrated\nPseudo-absence Jaccard")
+                          "e. Prevalence calibrated\nPseudo-absence Sorensen")
 
 
 
