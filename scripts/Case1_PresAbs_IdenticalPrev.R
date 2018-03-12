@@ -85,7 +85,7 @@ levels(ggr$model) <- c("40% overprediction & 40% underprediction",
                        "40% underprediction", 
                        "40% overprediction")
 
-levels(ggr$variable) <- c("a. True Skill Statistic", "b. Sorensen")
+levels(ggr$variable) <- c("a. True Skill Statistic", "b. S\u00F8rensen")
 
 
 

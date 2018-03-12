@@ -109,10 +109,10 @@ levels(ggr$model) <- c("40% overprediction &\n40% underprediction",
 levels(ggr$sample.absences) <- c("Sample\nprevalence = 0.50", 
                                  "Sample\nprevalence = 0.33", 
                                  "Sample\nprevalence = 0.05")
-levels(ggr$variable) <- c("a. True Skill Statistic", "b. Sorensen", 
-                          "c. Prevalence calibrated\nSorensen",
+levels(ggr$variable) <- c("a. True Skill Statistic", "b. S\u00F8rensen", 
+                          "c. Prevalence calibrated\nS\u00F8rensen",
                           "d. Fcpb",
-                          "e. Prevalence calibrated\nPseudo-absence Sorensen")
+                          "e. Prevalence calibrated\nPseudo-absence S\u00F8rensen")
 
 
 
