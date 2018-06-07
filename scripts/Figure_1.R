@@ -42,12 +42,12 @@ print(df)
 
 
 #### Graphical parameters ####
-width  = 1200 #pixels
-height = 675  #pixels
+width  = 1200 #pixels 1200 (png), inches(postscript)
+height = 675  #pixels 675 (png), inches(postscript)
 row = 2
 col = 3
 
-titles=c(paste0(FP[1]/TP[1] * 100, '% overprediction,\n0% under-prediction,\nprevalence = 0.01'), 
+titles=c(paste0(OPR[1] * 100, '% overprediction,\n0% under-prediction,\nprevalence = 0.01'), 
          '15% over-prediction,\n0% under-prediction,\nprevalence = 0.01',
          '0% over-prediction,\n15% under-prediction,\nprevalence = 0.01',
          paste('30% over- & under-prediction,\nprevalence = ', df$Prevalence[4],sep=""), 
@@ -61,7 +61,9 @@ diametres.obs <-  2*sqrt(obs*area /(total*pi))/96 #inches
 diametres.pred <- 2*sqrt(pred*area/(total*pi))/96 #inches
 ratio = df$UTP
 
-png( './outputs/Figure 1.png', width = width * 4.2, height = height * 4.2, res = 300)  
+# png( './outputs/Figure 1.png', width = width * 4.2, height = height * 4.2, res = 300)  
+# cairo_ps("./outputs/figure1.ps", width = 12, height = 6.75)
+cairo_pdf("./outputs/figure1.pdf", width = 12, height = 6.75)
 par( mfrow = c(row,col), mar = c(0,0,0,0) )
 #### Plots ####
 for (i in 1:6)
@@ -96,15 +98,15 @@ if(i <= 3)
   adj <- .46
   lett <- ".\n"
 }
-mtext(paste(letters[i], lett, sep=""), adj=0.03, side=1, line=-1.5, cex=1.6, font=1)
-mtext(titles[i], adj=.5, side=1, line=-1.5, cex=1.6, font=1)
+mtext(paste(letters[i], lett, sep=""), adj=0.03, side=1, line=-1.5, cex=1.1, font=1)
+mtext(titles[i], adj=.5, side=1, line=-1.5, cex=1.1, font=1)
 
 mtext(paste('TSS = ', format(TSS[i], nsmall = 2),
             '\nSensitivity = ', format(Sens[i], nsmall = 2),
-            '\nSpecificity = ',   format(Spe[i], nsmall = 2), sep = ""), adj=0.05, side=3, line=-7, cex=1.6)
+            '\nSpecificity = ',   format(Spe[i], nsmall = 2), sep = ""), adj=0.05, side=3, line=-5.5, cex=1.1)
 mtext(paste('\nS\u00F8rensen = ',  format(Sorensen[i], nsmall = 2),
             '\nUPR = ', format(UTP[i], nsmall = 2), 
-            '\nOPR = ', format(OPR[i], nsmall = 2), sep=""), adj=0.95, side=3, line=-7, cex=1.6)
+            '\nOPR = ', format(OPR[i], nsmall = 2), sep=""), adj=0.95, side=3, line=-5.5, cex=1.1)
 }
 
 dev.off()

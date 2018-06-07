@@ -89,7 +89,8 @@ levels(ggr$variable) <- c("a. True Skill Statistic", "b. S\u00F8rensen")
 
 
 
-png("./outputs/Figure 2 sample = species prevalence.png", h = 500, w = 500)
+# png("./outputs/Figure 2 sample = species prevalence.png", h = 500, w = 500)
+cairo_ps("./outputs/figure1.ps", width = 7, height = 7)
 ggplot(ggr, aes(x = sp.prev, y = value, col = model)) +
   geom_point(alpha = 1/10) +
   stat_smooth() +
